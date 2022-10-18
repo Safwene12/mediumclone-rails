@@ -1,0 +1,51 @@
+# PostgreSQL. Versions 9.3 and up are supported.
+#
+# Install the pg driver:
+#   gem install pg
+# On macOS with Homebrew:
+#   gem install pg -- --with-pg-config=/usr/local/bin/pg_config
+# On macOS with MacPorts:
+#   gem install pg -- --with-pg-config=/opt/local/lib/postgresql84/bin/pg_config
+# On Windows:
+#   gem install pg
+#       Choose the win32 build.
+#       Install PostgreSQL and put its /bin directory on your path.
+#
+# Configure Using Gemfile
+# gem "pg"
+#
+default: &default
+  adapter: postgresql
+  encoding: unicode
+
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: meduimclone_rails_development
+
+  username: postgres
+
+  password: admin
+
+  host: localhost
+
+  port: 5432
+
+test:
+  <<: *default
+  database: meduimclone_rails_test
+
+  username: postgres
+
+  password: admin
+
+  host: localhost
+
+  port: 5432
+
+production:
+  <<: *default
+  database: meduimclone_rails_production
+  username: meduimclone_rails
+  password: <%= ENV["MEDUIMCLONE_RAILS_DATABASE_PASSWORD"] %>
