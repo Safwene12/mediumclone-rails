@@ -20,6 +20,7 @@ class ApplicationController < ActionController::API
   def decoded_token
     if auth_header
       token = auth_header.split(" ")[1]
+      puts token
       begin
         JWT.decode(token, SECRET_KEY, true, algotithm: "HS256")
       rescue JWT::DecodeError
@@ -31,7 +32,7 @@ class ApplicationController < ActionController::API
   #Here we get the logged user from the token
   def logged_in_user
     if decoded_token
-      user_id = decoded_token[0]["id"]
+      user_id = decoded_token[0]["user_id"]
       @user = User.find_by(id: user_id)
     end
   end

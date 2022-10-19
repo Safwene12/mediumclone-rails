@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   after_initialize :set_defaults
 
+  has_many :articles, :foreign_key => "author_id", :class_name => "Article", dependent: :delete_all
+
   has_secure_password
   attr_accessor :token
 
