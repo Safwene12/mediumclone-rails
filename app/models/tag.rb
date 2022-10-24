@@ -10,6 +10,9 @@ class Tag < ApplicationRecord
     tags_id = []
     tags_name.each { |tag|
       tag = self.find_or_create_by(name: tag)
+      if !tag.save
+        return tag.errors
+      end
       tags_id.append({ tag_id: tag.id })
     }
     # uniq to remove duplcated values

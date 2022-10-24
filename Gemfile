@@ -12,9 +12,13 @@ gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 5.0"
 
-gem 'bcrypt', '~> 3.1.7'
-gem 'rack-cors'
-gem 'jwt'
+gem "bcrypt", "~> 3.1.7"
+gem "rack-cors"
+gem "jwt"
+
+gem "active_model_serializers", "~> 0.10.2"
+
+gem "jsom-pagination"
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
@@ -49,4 +53,3 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
 end
-

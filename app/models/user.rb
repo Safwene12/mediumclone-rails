@@ -13,4 +13,10 @@ class User < ApplicationRecord
   def set_defaults
     self.image = "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png"
   end
+
+  def self.encode_token(payload)
+    payload[:exp] = 24.hours.from_now.to_i
+    # in production the secret key should be an ENV variable.
+    JWT.encode(payload, Rails.application.secrets.secret_key_base.to_s)
+  end
 end
