@@ -17,7 +17,7 @@ class UsersController < ApplicationController
     if @user && @user.authenticate(params[:user][:password])
       render json: { user: serializer.new(@user) }, status: :ok
     else
-      render json: { error: "Invalid username or password" }, status: :unauthorized
+      render json: { errors: { credentials: ["Invalid username or password"] } }, status: :unauthorized
     end
   end
 

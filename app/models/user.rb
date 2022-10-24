@@ -3,6 +3,9 @@ class User < ApplicationRecord
 
   has_many :articles, :foreign_key => "author_id", :class_name => "Article", dependent: :delete_all
 
+  has_many :likes, dependent: :destroy
+  has_many :favorites, class_name: :articles, through: :likes
+
   has_secure_password
   attr_accessor :token
 
