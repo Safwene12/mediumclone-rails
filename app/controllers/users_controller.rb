@@ -1,15 +1,10 @@
 class UsersController < ApplicationController
-  skip_before_action :authorized
+  skip_before_action :authorized, except: [:current, :update]
   #REGISTER
   def create
-    puts "*********************************"
-    puts user_params[:user]
     @user = User.create(user_params[:user])
     if (@user.valid? && @user.save)
-      token = encode_token({ user_id: @user.id })
-      @user.token = token
-      # methods to add the additional attribut 'token' to the api response else it will return only the db object
-      render json: { user: @user }, methods: [:token]
+      render json: { user: serializer.new(@user) }, status: :ok
     else
       render json: { errors: @user.errors }, status: :unprocessable_entity
     end
@@ -17,15 +12,34 @@ class UsersController < ApplicationController
 
   # LOGGING IN
   def login
-    @user = User.find_by(email: params[:email])
+    @user = User.find_by(email: params[:user][:email])
 
-    if @user && @user.authenticate(params[:password])
-      token = encode_token({ user_id: @user.id })
-      @user.token = token
-      # methods to add the additional attribut 'token' to the api response else it will return only the db object
-      render json: { user: @user }, methods: [:token]
+    if @user && @user.authenticate(params[:user][:password])
+      render json: { user: serializer.new(@user) }, status: :ok
     else
-      render json: { error: "Invalid username or password" }
+      render json: { error: "Invalid username or password" }, status: :unauthorized
+    end
+  end
+
+  def current
+    render json: { user: serializer.new(@user) }, status: :ok
+  end
+
+  def profile
+    user = User.find_by_username(params[:username])
+    if !user
+      return render json: { error: { user: ["not found"] } }, status: :not_found
+    end
+    render json: { profile: ProfileSerializer.new(user) }, status: :ok
+  end
+
+  def update
+    @user.update(profile_params[:user])
+
+    if (@user.save)
+      render json: { user: serializer.new(@user) }, status: :ok
+    else
+      render json: { error: @user.errors }, status: :unprocessable_entity
     end
   end
 
@@ -33,5 +47,13 @@ class UsersController < ApplicationController
 
   def user_params
     params.permit(user: [:username, :password, :email])
+  end
+
+  def profile_params
+    params.permit(user: [:bio, :email, :password, :image, :username])
+  end
+
+  def serializer
+    UserSerializer
   end
 end
