@@ -2,6 +2,7 @@ class ArticlesController < ApplicationController
   include Paginable
 
   before_action :set_article, only: [:update, :destroy]
+  before_action :current, only: [:index]
 
   skip_before_action :authorized, only: [:index, :show]
 
@@ -18,6 +19,13 @@ class ArticlesController < ApplicationController
     render_collection(paginated)
   end
 
+  # GET /api/articles/feed
+  def feed
+    articles = Article.liked(@user.id).recent
+    paginated = paginate(articles)
+    render_collection(paginated)
+  end
+
   def show
     article = Article.where(slug: params[:id]).first
     if article
@@ -30,7 +38,6 @@ class ArticlesController < ApplicationController
   #Post /api/articles
   def create
     tag_ids = Tag.ids_from_names(article_params[:article][:tagList])
-    puts tag_ids
     #tag_ids returns error if something is wrong while tags creation or selection
     if tag_ids.class == ActiveModel::Errors
       return render json: { errors: tag_ids }, status: :unprocessable_entity
@@ -61,6 +68,32 @@ class ArticlesController < ApplicationController
     render json: { message: "Article deleted successfully" }, status: :ok
   rescue
     render json: { error: { article: ["Error while deleting"] } }, status: :not_found
+  end
+
+  #POST  /api/articles/:slug/favorite
+  def favorite
+    @article = Article.where(slug: params[:slug]).first
+    if !@article
+      return render json: { error: { article: ["Article not found"] } }
+    end
+    @article.likes.create({ user_id: @user.id })
+    @article.save!
+    if @article.save
+      render json: { article: serializer.new(@article) }, status: :ok
+    else
+      render json: { error: @article.errors }
+    end
+  end
+
+  #delete  /api/articles/:slug/favorite
+  def unfavorite
+    @article = Article.where(slug: params[:slug]).first
+    if !@article
+      return render json: { error: { article: ["Article not found"] } }
+    end
+    like = Like.where({ user_id: @user.id, article_id: @article.id }).first
+    like.destroy()
+    render json: { article: serializer.new(@article.reload) }, status: :ok
   end
 
   private

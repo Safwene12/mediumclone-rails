@@ -24,7 +24,7 @@ module Paginable
       links: paginated.links.to_h,
     }
 
-    result = { articlesCount: options[:meta][:total], articles: collection_serializer.new(paginated.items) }
+    result = { articlesCount: options[:meta][:total], articles: collection_serializer.new(paginated.items, scope: @user) }
     render json: result, status: :ok
   end
 end
